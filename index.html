@@ -326,6 +326,7 @@ svg.spark{width:100%;height:90px;display:block}
 
 <script>
 (function(){
+const BANNER_V="3A1BAE06";
 const SEED={"v": 1, "melon": {"log": {"2026-11-21": {"closest": 12221, "likes": 315, "plays": 2584, "temp": 98, "top": [["With", 569], ["LOVE ATTACK", 376], ["Runaway", 282]]}, "2026-11-22": {"closest": 12010, "likes": 329, "plays": 2748, "temp": 98, "top": [["With", 574], ["LOVE ATTACK", 382], ["Runaway", 287]]}}}, "bwa": {"grade": 2, "log": {"2026-11-22": {"hof": 74, "hofMonth": "2026-11", "rank": 171, "videos": 1075}}}, "routines": [{"auto": "melon", "id": "r-melon", "label": "멜론 21시 기록"}, {"auto": "bwa", "id": "r-bwa", "label": "이봐협 21시 기록"}], "checks": {}};
 const MEMBERS = ["원이","리브","미나미","메이","제나"];
 const GRADES = [
@@ -802,7 +803,7 @@ let assetsApi=null;
 const POS=["center 15%","center 30%","center 50%","center 70%"];
 function renderHero(){
   const hero=document.getElementById("hero"), img=document.getElementById("heroImg");
-  img.src="banner.jpg"; img.hidden=false; hero.classList.add("has-img"); hero.style.setProperty("--pos","center center");
+  if(!img.dataset.fit){ img.dataset.fit="1"; img.onload=()=>{ if(img.naturalWidth) hero.style.aspectRatio=img.naturalWidth+" / "+img.naturalHeight; }; img.src="banner.jpg?v="+BANNER_V; } img.hidden=false; hero.classList.add("has-img"); hero.style.setProperty("--pos","center center");
   const tools=document.getElementById("heroTools");
   if(!assetsApi){ tools.innerHTML=""; return; }
   tools.innerHTML = b&&b.id
