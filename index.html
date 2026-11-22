@@ -117,7 +117,7 @@ td.empty{color:var(--muted)}
 
 .top3 li{font-size:13px}
 .top3{margin:0;padding-left:18px}
-.hero{position:relative;overflow:hidden;border-radius:18px;min-height:200px;aspect-ratio:16/6;margin-bottom:18px;display:flex;align-items:flex-end;background:linear-gradient(135deg,var(--lilac-soft),color-mix(in srgb,var(--lilac) 30%,var(--bg)))}
+.hero{position:relative;overflow:hidden;border-radius:18px;min-height:0;aspect-ratio:2/1;margin-bottom:18px;display:flex;align-items:flex-end;background:linear-gradient(135deg,var(--lilac-soft),color-mix(in srgb,var(--lilac) 30%,var(--bg)))}
 .hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:var(--pos,center 30%)}
 .hero.has-img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 35%,rgba(0,0,0,.62))}
 .hero-word{position:absolute;right:-6px;top:4px;font-family:var(--serif);font-weight:700;font-size:clamp(54px,13vw,120px);line-height:1;letter-spacing:.04em;color:var(--lilac);opacity:.16;pointer-events:none}
@@ -127,7 +127,9 @@ td.empty{color:var(--muted)}
 .hero.has-img .hero-text .sub{opacity:.85}
 .hero-tools{position:absolute;z-index:2;bottom:12px;right:12px;display:flex;gap:6px;flex-wrap:wrap}
 .hero-tools button{font-size:12.5px;padding:5px 11px;border-radius:999px;background:color-mix(in srgb,var(--surface) 85%,transparent);backdrop-filter:blur(6px)}
-@media (max-width:540px){.hero{aspect-ratio:auto;min-height:180px}}
+@media (max-width:540px){.hero{border-radius:12px}}
+.sr-only{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.hero .hand{display:none!important}
 .hand{display:none;position:absolute;z-index:1;font-family:"Nanum Pen Script",var(--serif);color:#2B2E4A;line-height:1.05;text-shadow:0 0 6px rgba(255,255,255,.9),0 0 2px #fff;pointer-events:none}
 .hero.has-img .hand{display:block}
 .hand .u{background:linear-gradient(transparent 68%,rgba(232,99,139,.55) 68%,rgba(232,99,139,.55) 86%,transparent 86%);padding:0 2px}
@@ -153,15 +155,14 @@ svg.spark{width:100%;height:90px;display:block}
     <span class="hero-word" aria-hidden="true">RESCENE</span>
     <div class="hand hand-l"><span>고집남 삼촌,</span><br><span class="u">오늘도 수고했어요!</span> ♡</div>
     <div class="hand hand-r"><span class="big">오늘 일과</span><br><span class="big u">끝!!</span> ✦</div>
-    <div class="hero-text">
+    <div class="hero-text sr-only">
       <h1>고집남의 리센느 일과표</h1>
-      <div class="sub" id="todayLabel"></div>
     </div>
     <div class="hero-tools" id="heroTools"></div>
   </header>
   <div class="row between" style="margin:-8px 2px 10px">
-    <button class="ghost" id="keyReset" style="font-size:12px;padding:2px 6px">연결 설정</button>
-    <div class="save-state" id="saveState">불러오는 중</div>
+    <div class="sub" id="todayLabel" style="font-weight:600;color:var(--ink)"></div>
+    <div class="row" style="gap:6px"><span class="save-state" id="saveState">불러오는 중</span><button class="ghost" id="keyReset" style="font-size:12px;padding:2px 6px">연결 설정</button></div>
   </div>
   <input type="file" id="heroInput" accept="image/*" hidden>
 
@@ -801,7 +802,7 @@ let assetsApi=null;
 const POS=["center 15%","center 30%","center 50%","center 70%"];
 function renderHero(){
   const hero=document.getElementById("hero"), img=document.getElementById("heroImg");
-  img.src="banner.jpg"; img.hidden=false; hero.classList.add("has-img"); hero.style.setProperty("--pos",POS[1]);
+  img.src="banner.jpg"; img.hidden=false; hero.classList.add("has-img"); hero.style.setProperty("--pos","center center");
   const tools=document.getElementById("heroTools");
   if(!assetsApi){ tools.innerHTML=""; return; }
   tools.innerHTML = b&&b.id
