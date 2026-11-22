@@ -93,11 +93,11 @@ td.empty{color:var(--muted)}
 
 /* Grade ladder */
 .ladder{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:14px}
-.ladder button{border-radius:0;border:1px solid var(--line);border-left-width:0;padding:14px 8px;text-align:center;background:var(--surface);font-family:var(--serif);font-size:16px}
-.ladder button:first-child{border-left-width:1px;border-radius:10px 0 0 10px}
-.ladder button:last-child{border-radius:0 10px 10px 0}
-.ladder button.done{background:var(--bwa-soft);color:var(--bwa)}
-.ladder button.cur{background:var(--bwa);color:#fff;border-color:var(--bwa);font-weight:700}
+.ladder .step{border-radius:0;border:1px solid var(--line);border-left-width:0;padding:14px 8px;text-align:center;background:var(--surface);font-family:var(--serif);font-size:16px}
+.ladder .step:first-child{border-left-width:1px;border-radius:10px 0 0 10px}
+.ladder .step:last-child{border-radius:0 10px 10px 0}
+.ladder .step.done{background:var(--bwa-soft);color:var(--bwa)}
+.ladder .step.cur{background:var(--bwa);color:#fff;border-color:var(--bwa);font-weight:700}
 .ladder small{display:block;font-family:var(--sans);font-size:11px;opacity:.8;margin-top:2px}
 
 /* Today */
@@ -275,7 +275,7 @@ svg.spark{width:100%;height:90px;display:block}
         <a class="ext" href="https://bwajuma.club/" target="_blank" rel="noopener">이봐협 열기</a>
       </div>
       <div class="ladder" id="ladder"></div>
-      <div class="hint" style="margin-top:8px">등급이 오르면 해당 칸을 눌러 바꿔 주세요.</div>
+      <div class="hint" style="margin-top:8px" id="gradeNote"></div>
     </div>
 
     <div class="panel">
@@ -719,17 +719,24 @@ function drawSpark(vals, start){
 }
 
 /* ---------- BWAJUMA ---------- */
+// grade follows the latest recorded overall rank: top 100 → 협회 원로, top 30 → 고대리마인
+const GRADE_CUT=[Infinity,100,30];
+function gradeFor(rank){ if(rank==null) return 0; return rank<=30?2:rank<=100?1:0; }
 function renderLadder(){
-  const g = state.bwa.grade||0;
+  const last = prevVal(state.bwa.log, "9999-99-99", x=>x.rank);
+  const rank = last ? last.v : null;
+  const g = gradeFor(rank);
   document.getElementById("gradeName").textContent = GRADES[g].name;
   document.getElementById("ladder").innerHTML = GRADES.map((x,i)=>
-    '<button data-grade="'+i+'" class="'+(i<g?"done":i===g?"cur":"")+'" aria-pressed="'+(i===g)+'">'+x.name+'<small>'+(i<g?"달성":i===g?"현재":i===2?"목표":"다음 단계")+'</small></button>'
+    '<div class="step '+(i<g?"done":i===g?"cur":"")+'" aria-current="'+(i===g?"step":"false")+'">'+x.name+
+    '<small>'+(i===0?"100위 밖":i===1?"100위 안":"30위 안")+' · '+(i<g?"달성":i===g?"현재":"도전")+'</small></div>'
   ).join("");
+  let note;
+  if(rank==null) note="전체 순위를 기록하면 등급이 자동으로 정해져요.";
+  else if(g<2){ const need=rank-GRADE_CUT[g+1]; note="현재 "+fmt(rank)+"위 · "+GRADES[g+1].name+"까지 "+fmt(need)+"계단 남았어요."; }
+  else note="현재 "+fmt(rank)+"위 · 최고 등급이에요.";
+  document.getElementById("gradeNote").textContent=note;
 }
-document.getElementById("ladder").addEventListener("click", e=>{
-  const b=e.target.closest("[data-grade]"); if(!b) return;
-  state.bwa.grade=Number(b.dataset.grade); persist({bwa:{grade:state.bwa.grade}}); renderLadder();
-});
 function fillBwaForm(){
   const d=document.getElementById("bDate").value; const e=state.bwa.log[d];
   document.getElementById("bVideos").value = e&&e.videos!=null?e.videos:"";
