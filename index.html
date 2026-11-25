@@ -287,6 +287,7 @@ svg.spark{width:100%;height:90px;display:block}
       <div class="grid">
         <label class="f">인정된 본 영상 (개)<input type="text" inputmode="numeric" autocomplete="off" id="bVideos"></label>
         <label class="f">현재 전체 순위 (위)<input type="text" inputmode="numeric" autocomplete="off" id="bRank"></label>
+        <label class="f">경기 지부 순위 (위)<input type="text" inputmode="numeric" autocomplete="off" id="bBranch"></label>
         <label class="f"><span id="hofLabel">명예의 전당 (위)</span><input type="text" inputmode="numeric" autocomplete="off" id="bHof"></label>
       </div>
       <div class="row between" style="margin-top:16px">
@@ -743,6 +744,7 @@ function fillBwaForm(){
   const d=document.getElementById("bDate").value; const e=state.bwa.log[d];
   document.getElementById("bVideos").value = e&&e.videos!=null?e.videos:"";
   document.getElementById("bRank").value = e&&e.rank!=null?e.rank:"";
+  document.getElementById("bBranch").value = e&&e.branch!=null?e.branch:"";
   document.getElementById("bHof").value = e&&e.hof!=null?e.hof:"";
   document.getElementById("hofLabel").textContent = "명예의 전당 · "+monthLabel(d)+" (위)";
   const p=prevVal(state.bwa.log,d,x=>x.rank);
@@ -753,9 +755,9 @@ function fillBwaForm(){
 document.getElementById("bDate").addEventListener("change", fillBwaForm);
 document.getElementById("bSave").addEventListener("click", ()=>{
   const d=document.getElementById("bDate").value; if(!d) return;
-  const e={ videos:num(document.getElementById("bVideos").value), rank:num(document.getElementById("bRank").value), hof:num(document.getElementById("bHof").value), hofMonth:monthKey(d) };
-  if(bad(e.videos,e.rank,e.hof)){ toast("숫자로 입력해 주세요"); return; }
-  if(e.videos===null&&e.rank===null&&e.hof===null){ toast("입력한 값이 없어요"); return; }
+  const e={ videos:num(document.getElementById("bVideos").value), rank:num(document.getElementById("bRank").value), branch:num(document.getElementById("bBranch").value), hof:num(document.getElementById("bHof").value), hofMonth:monthKey(d) };
+  if(bad(e.videos,e.rank,e.branch,e.hof)){ toast("숫자로 입력해 주세요"); return; }
+  if(e.videos===null&&e.rank===null&&e.branch===null&&e.hof===null){ toast("입력한 값이 없어요"); return; }
   const was = !!state.bwa.log[d];
   state.bwa.log[d]=e; weekAnchor.bwa=monday(d); persist({bwa:{log:{[d]:e}}}); renderBwa(); fillBwaForm(); renderToday();
   toast(short(d)+" 이봐협 기록 "+(was?"수정":"저장"));
@@ -770,15 +772,16 @@ function renderBwa(){
   renderLadder();
   const log=state.bwa.log; const start=weekAnchor.bwa; const t=todayStr();
   document.querySelector('[data-weeklabel="bwa"]').textContent = short(start)+" – "+short(addDays(start,6));
-  let rows='<thead><tr><th>날짜</th><th>인정된 본 영상</th><th>전체 순위</th><th>명예의 전당</th><th></th></tr></thead><tbody>';
+  let rows='<thead><tr><th>날짜</th><th>인정된 본 영상</th><th>전체 순위</th><th>경기 지부</th><th>명예의 전당</th><th></th></tr></thead><tbody>';
   for(let i=0;i<7;i++){
     const d=addDays(start,i); const e=log[d];
-    if(!e){ rows+='<tr class="'+(d===t?"today":"")+'"><td>'+short(d)+'</td><td class="empty" colspan="4">기록 없음</td></tr>'; continue; }
+    if(!e){ rows+='<tr class="'+(d===t?"today":"")+'"><td>'+short(d)+'</td><td class="empty" colspan="5">기록 없음</td></tr>'; continue; }
     const mk = e.hofMonth||monthKey(d);
     const hofPrev = prevVal(log,d,(x,k)=>((x.hofMonth||monthKey(k))===mk)?x.hof:null);
     rows+='<tr class="'+(d===t?"today":"")+'"><td>'+short(d)+'</td>'+
       '<td class="num">'+fmt(e.videos)+deltaHTML(e.videos, prevVal(log,d,x=>x.videos),"more")+'</td>'+
       '<td class="num">'+(e.rank==null?"—":fmt(e.rank)+"위")+deltaHTML(e.rank, prevVal(log,d,x=>x.rank),"less")+'</td>'+
+      '<td class="num">'+(e.branch==null?"—":fmt(e.branch)+"위")+deltaHTML(e.branch, prevVal(log,d,x=>x.branch),"less")+'</td>'+
       '<td class="num">'+(e.hof==null?"—":'<span class="hint">'+Number(mk.slice(5))+'월</span> '+fmt(e.hof)+"위")+deltaHTML(e.hof, hofPrev,"less")+'</td><td><button class="editbtn" data-edit="'+d+'">수정</button></td></tr>';
   }
   document.getElementById("bTable").innerHTML=rows+"</tbody>";
@@ -794,6 +797,10 @@ function renderBwa(){
     const bR = prevVal(log,start,x=>x.rank);
     const firstR = keys.map(k=>log[k].rank).find(v=>v!=null);
     if(lastR!=null) parts.push(sumPart("전체 순위", lastR-(bR?bR.v:firstR), "less", "계단"));
+    const lastB = [...keys].reverse().map(k=>log[k].branch).find(v=>v!=null);
+    const bB = prevVal(log,start,x=>x.branch);
+    const firstB = keys.map(k=>log[k].branch).find(v=>v!=null);
+    if(lastB!=null) parts.push(sumPart("경기 지부", lastB-(bB?bB.v:firstB), "less", "계단"));
   }
   document.getElementById("bWeekSum").innerHTML = parts.length ? "이번 주 변화 · "+parts.join(" · ") : "이 주에는 기록이 없어요";
 }
