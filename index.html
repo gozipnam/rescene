@@ -58,7 +58,8 @@ button.ghost{border-color:transparent;background:transparent;color:var(--muted)}
 button.icon{padding:4px 10px;min-width:34px}
 input,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:7px 10px;min-width:0}
 input[inputmode]{font-variant-numeric:tabular-nums}
-label.f{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+label.f{display:flex;flex-direction:column;justify-content:space-between;gap:4px;font-size:13px;color:var(--muted)}
+label.f > span, label.f{word-break:keep-all}
 label.f input{color:var(--ink);font-size:15px}
 .grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
 .hint{font-size:12.5px;color:var(--muted)}
@@ -746,7 +747,8 @@ function fillBwaForm(){
   document.getElementById("bRank").value = e&&e.rank!=null?e.rank:"";
   document.getElementById("bBranch").value = e&&e.branch!=null?e.branch:"";
   document.getElementById("bHof").value = e&&e.hof!=null?e.hof:"";
-  document.getElementById("hofLabel").textContent = "명예의 전당 · "+monthLabel(d)+" (위)";
+  document.getElementById("hofLabel").textContent = "명예의 전당 "+(parse(d).getMonth()+1)+"월 (위)";
+  document.getElementById("hofLabel").title = monthLabel(d);
   const p=prevVal(state.bwa.log,d,x=>x.rank);
   document.getElementById("bPrevHint").textContent = e ? "저장된 기록을 수정하고 있어요" : (p ? "직전 기록 "+short(p.date)+" · 전체 "+fmt(p.v)+"위" : "첫 기록이에요");
   document.getElementById("bDelete").hidden=!e;
